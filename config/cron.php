@@ -11,7 +11,7 @@
 return array
 (
 	// Path to a writable directory and lock file
-	'lock' => Kohana::$cache_dir.DIRECTORY_SEPARATOR.'cron.lck',
+	'lock' => APPPATH.'logs'.DIRECTORY_SEPARATOR.'cron.lock',
 
 	/**
 	 * Cron does not run EXACTLY when tasks are scheduled.
