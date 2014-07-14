@@ -1,6 +1,8 @@
 # Kohana-Cron
 
-This module provides a way to schedule tasks (jobs) within your Kohana application.
+This module provides a way to schedule tasks (jobs) within your Kohana application. Based on the job done by Chris Bandy at https://github.com/cbandy/kohana-cron
+
+Uses vendor [mtdowling/cron-expression][https://github.com/mtdowling/cron-expression].
 
 
 ## Installation
