@@ -80,23 +80,21 @@ class Kohana_Cron extends ORM {
 	 */
 	public function execute()
 	{
+        $return = FALSE;
+
         if ($this->loaded())
         {
+            //before launching the fucntion mark is as started and loading/running
             $this->date_started = Date::unix2mysql();
+            $this->running      = 1;
+            $this->save();
 
-            if (Cron::function_exists($this->call_back))
+            //launch the function
+            $return = $cron->execute_call_back();
+
+            //executed!
+            if ($return!==FALSE)
             {
-                //before launching the fucntion mark is as started and loading
-                $this->running      = 1;
-                $this->save();
-
-                //launch the function
-                $params = explode(self::PARAMS_SEPARATOR, $this->params);
-                if (is_array($params))
-                    $return = call_user_func_array($this->call_back,$params);
-                else
-                    $return = call_user_func($this->call_back);
-
                 //finished save finish , output and when will be executed next
                 $this->date_finished = Date::unix2mysql();
 
@@ -109,24 +107,45 @@ class Kohana_Cron extends ORM {
                 $this->output  = $return;
 
                 $this->save();
+            }    
 
-                return $return;
+        }
+
+        return $return;
+        
+	}
+
+    /**
+     * executes the cron functions from the callback
+     * @return function outup
+     */
+    public function execute_call_back()
+    {
+        $return = FALSE;
+        
+        if ($this->loaded() )
+        {
+            if (Cron::function_exists($this->call_back))
+            {
+                $params = explode(self::PARAMS_SEPARATOR, $this->params);
+                if (is_array($params))
+                    $return = call_user_func_array($this->call_back,$params);
+                else
+                    $return = call_user_func($this->call_back);
             }
             else
             {
                 //if function not found deactivate the cron
+                $this->date_started = Date::unix2mysql();
                 $this->active  = 0;
                 $this->running = 0;
                 $this->output  = 'Error: Function not found';
-
                 $this->save();
             }
-
         }
 
-        return FALSE;
-        
-	}
+        return $return;
+    }
 
     /**
      * get next date the cron needs to be run
