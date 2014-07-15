@@ -34,36 +34,127 @@ class Kohana_Cron extends ORM {
      */
     const TRESHOLD         = 360;
 
+    /**
+     * separator used in the table field params to separate the params we pass to the callback function.
+     */
+    const PARAMS_SEPARATOR = '|';
 	
+    /**
+     * gets all the crons from crontab and executes them
+     * @return string info
+     */
 	public static function run()
 	{
-        require Kohana::find_file('vendor', 'autoload');
+        $time_start = microtime(true);
 
-        // Works with complex expressions
-$cron =     Cron\CronExpression::factory('*/13 15 * * *');
- d($cron->getNextRunDate('2010-01-12 00:00:00')->format('Y-m-d H:i:s'));
+		//get active crons and due to execute now or next execute is NULL
+        $crontab = new Cron();
+        $crontab = $crontab->where('active','=',1)
+                            ->where_open()
+                            ->or_where('date_next','<=',Date::unix2mysql())
+                            ->or_where('date_next','IS',NULL)
+                            ->where_close()
+                            ->find_all();
 
-		//get active crons and due to execute now or next execue is NULL
-        //check if cron is running, if running but passed treshold, lets launch it again...
-        //execute the cron
+        $crons_executed = 0;
+        foreach ($crontab as $cron) 
+        {
+            //check if cron is running, if running but passed treshold, lets launch it again...
+            if ($cron->running == 0 OR (Date::mysql2unix($cron->date_started) - time()) >= self::TRESHOLD )
+            {
+                $cron->execute();
+                $crons_executed++;
+            }
+        }
+
+        $seconds = microtime(true) - $time_start;
+        
+        return sprintf('Executed %d cronjobs in %d seconds',$crons_executed,$seconds);
 	}
 
 
 
 	/**
-	 * Execute this job
+	 * Execute this cron job
+     * @return bool/mixed false if fails, string with func output 
 	 */
 	public function execute()
 	{
-        //if loaded, save when starts mark it as running
-        //launch the function
-		call_user_func($this->callback);
-        //finished save finish and output and when will be executed next
-        
+        if ($this->loaded())
+        {
+            $this->date_started = Date::unix2mysql();
 
+            if (Cron::function_exists($this->call_back))
+            {
+                //before launching the fucntion mark is as started and loading
+                $this->running      = 1;
+                $this->save();
+
+                //launch the function
+                $params = explode(self::PARAMS_SEPARATOR, $this->params);
+                if (is_array($params))
+                    $return = call_user_func_array($this->call_back,$params);
+                else
+                    $return = call_user_func($this->call_back);
+
+                //finished save finish , output and when will be executed next
+                $this->date_finished = Date::unix2mysql();
+
+                //when is next? we used the started date as base
+                require Kohana::find_file('vendor', 'autoload');//watch out for this in a futture may gave is troubles....
+                $cron =   Cron\CronExpression::factory($this->period);
+                $this->date_next = $cron->getNextRunDate($this->date_started)->format('Y-m-d H:i:s');
+
+                //not running anymore
+                $this->times_executed+=1;
+                $this->running = 0;
+                $this->output  = $return;
+
+                $this->save();
+
+                return $return;
+            }
+            else
+            {
+                //if function not found deactivate the cron
+                $this->active  = 0;
+                $this->running = 0;
+                $this->output  = 'Error: Function not found';
+
+                $this->save();
+            }
+
+        }
+
+        return FALSE;
         
 	}
 
+
+    /**
+     * checks if a call_back function name can be used
+     * @param string $call_back function name
+     * @return boolean
+     */
+    public static function function_exists($call_back)
+    {
+        if (function_exists($call_back))
+        {
+            return TRUE;
+        }
+        
+        if (strpos($call_back, '::'))
+        {
+            $m=explode('::',$call_back);
+            if (method_exists($m[0], $m[1]))
+            {
+                return TRUE;
+            }
+        } 
+       
+       return FALSE;
+    
+    }
 
 
 

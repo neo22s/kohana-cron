@@ -1,15 +1,22 @@
 <?php
 
 /**
- * @package Cron
+ * Cron model
  *
- * @author      Chris Bandy
- * @copyright   (c) 2010 Chris Bandy
- * @license     http://www.opensource.org/licenses/isc-license.txt
+ *
+ * @package    OC
+ * @category   Cron
+ * @author     Chema <chema@open-classifieds.com>
+ * @copyright  (c) 2009-2014 Open Classifieds Team
+ * @license    GPL v3
  */
 
+ignore_user_abort(true); 
+set_time_limit(0);
+ini_set('memory_limit', '1024M');
+
 // Path to Kohana's index.php
-$system = dirname(dirname(dirname(dirname(__FILE__)))).DIRECTORY_SEPARATOR.'index.php';
+$system = dirname(dirname(dirname(dirname(dirname(__FILE__))))).DIRECTORY_SEPARATOR.'index.php';
 
 if (file_exists($system))
 {
@@ -17,10 +24,6 @@ if (file_exists($system))
 
 	include $system;
 
-    //get all the cron jobs
-    //Cron::set('email_test', array('*/5 * * * *', 'Controller_Home::email'));
-    //Cron::set('log_test', array('*/3 * * * *', 'Controller_Home::log'));
-
-    //execute them
-	Cron::run();
+    //execute all the crons
+	echo Cron::run();
 }
