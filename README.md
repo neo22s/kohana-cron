@@ -48,36 +48,26 @@ Step 3: Enable the module in your bootstrap file:
 
 ## Usage
 
-In its simplest form, a task is a [PHP callback][1] and times at which it should run.
-To configure a task call `Cron::set($name, array($frequency, $callback))` where
-`$frequency` is a string of date and time fields identical to those found in [crontab][2].
-For example,
+Add in the crontab table new entries to execute your code.
 
-	Cron::set('reindex_catalog', array('@daily', 'Catalog::regenerate_index'));
-	Cron::set('calendar_notifications', array('*/5 * * * *', 'Calendar::send_emails'));
+Edit bootstrap.php add at the end the following:
+`Cron::run();`
 
-Configured tasks are run with their appropriate frequency by calling `Cron::run()`. Call
-this method in your bootstrap file, and you're done!
-
+This will run the cron on every request (not recommended, chec advanced).
 
 ## Advanced Usage
 
-A task can also be an instance of `Cron` that extends `next()` and/or `execute()` as
-needed. Such a task is configured by calling `Cron::set($name, $instance)`.
-
-If you have access to the system crontab, you can run Cron less (or more) than once
-every request. You will need to modify the lines where the request is handled in your
-bootstrap file to prevent extraneous output. The default is:
+If you have access to the system crontab, you can run Cron once a minute (or less). You will need to modify the lines where the request is handled in your bootstrap file to prevent extraneous output. The default is:
 
 	
-	echo Request::factory()
+    echo Request::factory()
             ->execute()
             ->send_headers()
             ->body();
 
 Change it to:
 
-	if ( ! defined('SUPPRESS_REQUEST'))
+    if ( ! defined('SUPPRESS_REQUEST'))
     {
         echo Request::factory()
             ->execute()
@@ -89,9 +79,5 @@ Then set up a system cron job to run your application's Cron once a minute:
 
 * * * * * /usr/bin/php -f /var/www/open-classifieds/oc/modules/common/modules/cron/cron.php
 
-The included `run.php` should work for most cases, but you are free to call `Cron::run()`
+The included `cron.php` should work for most cases (review path), but you are free to call `Cron::run()`
 in any way you see fit.
-
-
-  [1]: http://php.net/manual/language.pseudo-types.php#language.types.callback
-  [2]: http://linux.die.net/man/5/crontab

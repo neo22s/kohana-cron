@@ -18,6 +18,8 @@ ini_set('memory_limit', '1024M');
 // Path to Kohana's index.php // REVIEW this depends on your APP is in different folder
 $system = dirname(dirname(dirname(dirname(dirname(__FILE__))))).DIRECTORY_SEPARATOR.'index.php';
 
+//$system = '/var/www/open-classifieds/index.php';
+
 if (file_exists($system))
 {
 	defined('SUPPRESS_REQUEST') or define('SUPPRESS_REQUEST', TRUE);

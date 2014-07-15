@@ -90,7 +90,7 @@ class Kohana_Cron extends ORM {
             $this->save();
 
             //launch the function
-            $return = $cron->execute_call_back();
+            $return = $this->execute_call_back();
 
             //executed!
             if ($return!==FALSE)
@@ -122,16 +122,16 @@ class Kohana_Cron extends ORM {
     public function execute_call_back()
     {
         $return = FALSE;
-        
+
         if ($this->loaded() )
         {
-            if (Cron::function_exists($this->call_back))
+            if (Cron::function_exists($this->callback))
             {
                 $params = explode(self::PARAMS_SEPARATOR, $this->params);
                 if (is_array($params))
-                    $return = call_user_func_array($this->call_back,$params);
+                    $return = call_user_func_array($this->callback,$params);
                 else
-                    $return = call_user_func($this->call_back);
+                    $return = call_user_func($this->callback);
             }
             else
             {
