@@ -100,10 +100,8 @@ class Kohana_Cron extends ORM {
                 //finished save finish , output and when will be executed next
                 $this->date_finished = Date::unix2mysql();
 
-                //when is next? we used the started date as base
-                require Kohana::find_file('vendor', 'autoload');//watch out for this in a futture may gave is troubles....
-                $cron =   Cron\CronExpression::factory($this->period);
-                $this->date_next = $cron->getNextRunDate($this->date_started)->format('Y-m-d H:i:s');
+                //when is next to be executed
+                $this->date_next     = $this->get_next_date();
 
                 //not running anymore
                 $this->times_executed+=1;
@@ -130,6 +128,22 @@ class Kohana_Cron extends ORM {
         
 	}
 
+    /**
+     * get next date the cron needs to be run
+     * @return date mysql format
+     */
+    public function get_next_date()
+    {
+        if ($this->loaded())
+        {
+            //when is next? we used the started date as base
+            require Kohana::find_file('vendor', 'autoload');//watch out for this in a futture may gave is troubles....
+            $cron =  Cron\CronExpression::factory($this->period);
+            return $cron->getNextRunDate($this->date_started)->format('Y-m-d H:i:s');
+        }
+
+        return NULL;
+    }
 
     /**
      * checks if a call_back function name can be used

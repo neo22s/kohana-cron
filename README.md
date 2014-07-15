@@ -1,6 +1,6 @@
 # Kohana-Cron
 
-This module provides a way to schedule tasks (jobs) within your Kohana application. Based on the job done by Chris Bandy at https://github.com/cbandy/kohana-cron
+This module provides a way to schedule tasks (jobs) within your Kohana application. Based on the job done by [Chris Bandy][https://github.com/cbandy/kohana-cron]
 
 Uses vendor [mtdowling/cron-expression][https://github.com/mtdowling/cron-expression].
 
@@ -9,7 +9,28 @@ Uses vendor [mtdowling/cron-expression][https://github.com/mtdowling/cron-expres
 
 Step 1: Download the module into your modules subdirectory.
 
-Step 2: Enable the module in your bootstrap file:
+Step 2: Create table crontab
+
+    CREATE TABLE IF NOT EXISTS  `crontab` (
+      `id_crontab` int(10) unsigned NOT NULL AUTO_INCREMENT,
+      `name` varchar(50) NOT NULL,
+      `period` varchar(50) NOT NULL,
+      `callback` varchar(140) NOT NULL,
+      `params` varchar(255) DEFAULT NULL,
+      `description` varchar(255) DEFAULT NULL,
+      `date_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `date_started` datetime  DEFAULT NULL,
+      `date_finished` datetime  DEFAULT NULL,
+      `date_next` datetime  DEFAULT NULL,
+      `times_executed`  bigint DEFAULT NULL,
+      `output` varchar(50) DEFAULT NULL,
+      `running` tinyint(1) NOT NULL DEFAULT '0',
+      `active` tinyint(1) NOT NULL DEFAULT '1',
+      PRIMARY KEY (`id_crontab`),
+      UNIQUE KEY `crontab_UK_name` (`name`)
+    ) ENGINE=MyISAM DEFAULT;
+
+Step 3: Enable the module in your bootstrap file:
 
 	/**
 	 * Enable modules. Modules are referenced by a relative or absolute path.
@@ -24,11 +45,6 @@ Step 2: Enable the module in your bootstrap file:
 		// 'pagination' => MODPATH.'pagination', // Paging of results
 		// 'userguide'  => MODPATH.'userguide',  // User guide and API documentation
 	));
-
-
-Step 3: Make sure the settings in `config/cron.php` are correct for your environment.
-If not, copy the file to `application/config/cron.php` and change the values accordingly.
-
 
 ## Usage
 
@@ -53,32 +69,25 @@ If you have access to the system crontab, you can run Cron less (or more) than o
 every request. You will need to modify the lines where the request is handled in your
 bootstrap file to prevent extraneous output. The default is:
 
-	/**
-	 * Execute the main request. A source of the URI can be passed, eg: $_SERVER['PATH_INFO'].
-	 * If no source is specified, the URI will be automatically detected.
-	 */
-	echo Request::instance()
-		->execute()
-		->send_headers()
-		->response;
+	
+	echo Request::factory()
+            ->execute()
+            ->send_headers()
+            ->body();
 
 Change it to:
 
 	if ( ! defined('SUPPRESS_REQUEST'))
-	{
-		/**
-		 * Execute the main request. A source of the URI can be passed, eg: $_SERVER['PATH_INFO'].
-		 * If no source is specified, the URI will be automatically detected.
-		 */
-		echo Request::instance()
-			->execute()
-			->send_headers()
-			->response;
-	}
+    {
+        echo Request::factory()
+            ->execute()
+            ->send_headers()
+            ->body();
+    }
 
 Then set up a system cron job to run your application's Cron once a minute:
 
-	* * * * * /usr/bin/php -f /path/to/kohana/modules/cron/run.php
+* * * * * /usr/bin/php -f /var/www/open-classifieds/oc/modules/common/modules/cron/cron.php
 
 The included `run.php` should work for most cases, but you are free to call `Cron::run()`
 in any way you see fit.

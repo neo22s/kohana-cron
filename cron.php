@@ -15,7 +15,7 @@ ignore_user_abort(true);
 set_time_limit(0);
 ini_set('memory_limit', '1024M');
 
-// Path to Kohana's index.php
+// Path to Kohana's index.php // REVIEW this depends on your APP is in different folder
 $system = dirname(dirname(dirname(dirname(dirname(__FILE__))))).DIRECTORY_SEPARATOR.'index.php';
 
 if (file_exists($system))

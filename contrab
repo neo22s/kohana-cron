@@ -1,1 +1,0 @@
-* * * * * /usr/bin/php -f /var/www/open-classifieds/oc/modules/common/cron.php
