@@ -11,12 +11,12 @@
  * @license    GPL v3
  */
 
-ignore_user_abort(true); 
+ignore_user_abort(TRUE); 
 set_time_limit(0);
 ini_set('memory_limit', '1024M');
 
 // Path to Kohana's index.php // REVIEW this depends on your APP is in different folder
-$system = dirname(dirname(dirname(dirname(dirname(__FILE__))))).DIRECTORY_SEPARATOR.'index.php';
+$system = dirname(dirname(dirname(dirname(__DIR__)))).DIRECTORY_SEPARATOR.'index.php';
 
 //$system = '/var/www/open-classifieds/index.php';
 
