@@ -60,7 +60,7 @@ class Kohana_Cron extends ORM {
         foreach ($crontab as $cron) 
         {
             //check if cron is running, if running but passed treshold, lets launch it again...
-            if ($cron->running == 0 OR (Date::mysql2unix($cron->date_started) - time()) >= self::TRESHOLD )
+            if ($cron->running == 0 OR ( $cron->running == 1 AND  ( time() - Date::mysql2unix($cron->date_started)) >= self::TRESHOLD ) )
             {
                 $cron->execute();
                 $crons_executed++;
