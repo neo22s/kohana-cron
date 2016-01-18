@@ -1,8 +1,8 @@
 # Kohana-Cron
 
-This module provides a way to schedule tasks (jobs) within your Kohana application. Based on the job done by [Chris Bandy][https://github.com/cbandy/kohana-cron]
+This module provides a way to schedule tasks (jobs) within your Kohana application. Based on the job done by (Chris Bandy)[https://github.com/cbandy/kohana-cron]
 
-Uses vendor [mtdowling/cron-expression][https://github.com/mtdowling/cron-expression].
+Uses vendor (mtdowling/cron-expression)[https://github.com/mtdowling/cron-expression].
 
 
 ## Installation
@@ -10,7 +10,7 @@ Uses vendor [mtdowling/cron-expression][https://github.com/mtdowling/cron-expres
 Step 1: Download the module into your modules subdirectory.
 
 Step 2: Create table crontab
-
+```
     CREATE TABLE IF NOT EXISTS  `crontab` (
       `id_crontab` int(10) unsigned NOT NULL AUTO_INCREMENT,
       `name` varchar(50) NOT NULL,
@@ -28,10 +28,10 @@ Step 2: Create table crontab
       `active` tinyint(1) NOT NULL DEFAULT '1',
       PRIMARY KEY (`id_crontab`),
       UNIQUE KEY `crontab_UK_name` (`name`)
-    ) ENGINE=MyISAM DEFAULT;
+    ) ENGINE=MyISAM DEFAULT;```
 
 Step 3: Enable the module in your bootstrap file:
-
+```
 	/**
 	 * Enable modules. Modules are referenced by a relative or absolute path.
 	 */
@@ -45,13 +45,14 @@ Step 3: Enable the module in your bootstrap file:
 		// 'pagination' => MODPATH.'pagination', // Paging of results
 		// 'userguide'  => MODPATH.'userguide',  // User guide and API documentation
 	));
+```
 
 ## Usage
 
 Add in the crontab table new entries to execute your code.
 
 Edit bootstrap.php add at the end the following:
-`Cron::run();`
+```Cron::run();```
 
 This will run the cron on every request (not recommended, chec advanced).
 
@@ -59,14 +60,14 @@ This will run the cron on every request (not recommended, chec advanced).
 
 If you have access to the system crontab, you can run Cron once a minute (or less). You will need to modify the lines where the request is handled in your bootstrap file to prevent extraneous output. The default is:
 
-	
+```	
     echo Request::factory()
             ->execute()
             ->send_headers()
             ->body();
-
+```
 Change it to:
-
+```
     if ( ! defined('SUPPRESS_REQUEST'))
     {
         echo Request::factory()
@@ -74,10 +75,10 @@ Change it to:
             ->send_headers()
             ->body();
     }
-
+```
 Then set up a system cron job to run your application's Cron once a minute:
 
-* * * * * /usr/bin/php -f /var/www/open-classifieds/oc/modules/common/modules/cron/cron.php
+```* * * * * /usr/bin/php -f /var/www/open-classifieds/oc/modules/common/modules/cron/cron.php```
 
 The included `cron.php` should work for most cases (review path), but you are free to call `Cron::run()`
 in any way you see fit.
